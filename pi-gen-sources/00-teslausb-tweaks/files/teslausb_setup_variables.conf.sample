@@ -75,15 +75,15 @@ export SHARE_PASSWORD='password'
 #     The minimum supported size is 64 GB.
 #   * The setup script will keep a fixed 6 GB of space in reserve regardless of
 #     sd card size.
-#   * CAM_SIZE should generally be somewhat small, 30G is recommended, unless you
+#   * CAM_SIZE should generally be somewhat small, 40G is recommended, unless you
 #     plan on accumulating a lot of footage between archive operations, in which
 #     case you should increase the value (an hour of recordings, or 6 Sentry
-#     events, is about 7-9 GB of data).
+#     events, is about 7-10 GB of data, depending on the model year of the car).
 #   * MUSIC_SIZE should be large enough to hold your music library, obviously.
 #   * If no music size is specified, no music drive will be created.
 #   * If no lightshow size is specified, no lightshow drive will be created.
 #   * If no boombox size is specified, no boombox drive will be created.
-export CAM_SIZE=30G
+export CAM_SIZE=40G
 #export MUSIC_SIZE=4G
 #export LIGHTSHOW_SIZE=1G
 #export BOOMBOX_SIZE=100M
