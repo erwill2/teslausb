@@ -64,8 +64,11 @@ esac
 # Convert root from possible UUID to device name
 echo
 echo "root=${ROOT}  "
-/usr/bin/udevadm trigger
-/usr/bin/udevadm settle
+while [ ! -d /dev/disk/by-partuuid ]
+do
+  echo "waiting for /dev/disk/by-partuuid"
+  sleep 1
+done
 ROOT_DEVICE="$(/sbin/findfs-full "$ROOT")"
 echo "root device name is ${ROOT_DEVICE}  "
 # Make sure LVM volumes are activated
