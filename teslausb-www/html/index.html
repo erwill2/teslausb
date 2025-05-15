@@ -328,8 +328,8 @@ video {
 .videoholder.layout6 {
   grid-template-areas:
     "mapview frontview infoview"
-    "leftpillarview . rightpillarview"
-    "leftrepeaterview backview rightrepeaterview";
+    "rightpillarview . leftpillarview"
+    "rightrepeaterview backview leftrepeaterview";
 }
 
 .videogriditem {
@@ -448,6 +448,10 @@ video {
 #layouts.subnav-content .dropdownitem.selected {
   text-decoration: underline 2px;
   font-weight: bold;
+}
+
+.dropdownitem.pillar {
+  display: none;
 }
 
 .navbar a:hover, .subnav:hover {
@@ -933,7 +937,7 @@ video {
             <div class="dropdownitem layoutitem" onclick="setLayout(3)">Side and rear on bottom, looking back</div>
             <div class="dropdownitem layoutitem" onclick="setLayout(4)">Mobile layout,<br>mirrored</div>
             <div class="dropdownitem layoutitem" onclick="setLayout(5)">Mobile layout,<br>looking back</div>
-            <div class="dropdownitem layoutitem" onclick="setLayout(6)">map, info on top,pillar and repeater cams on the side, mirrored back</div>
+            <div class="dropdownitem layoutitem pillar" onclick="setLayout(6)">Pillars on the side</div>
           </div>
         </div>
       </div>
@@ -1121,10 +1125,7 @@ function setLayout(layout) {
     backview.classList.remove("flipped");
     videogrid.classList="videoholder layout5";
   } else if (layout == 6) {
-    // map-front-info on top, mirrored back 
-    //leftrepeaterview.classList.add("flipped");
-    //rightrepeaterview.classList.add("flipped");
-    backview.classList.add("flipped");
+    // map-front-info on top, pillars on the side, repeaters and rear on bottom 
     videogrid.classList="videoholder layout6";
   } else {
     layout = 3;
@@ -1703,7 +1704,7 @@ function showstatus() {
         etherdiv.style.display="none";
       } else {
         etherdiv.style.display="inherit";
-        var etherinfospan = document.querySelector(".status_ether_info");
+        var etherinfospan = document.yuerySelector(".status_ether_info");
         var etherinfo="";
         if (statusvals.ether_speed == "Unknown!") {
           etherinfo = "Not connected."
@@ -2739,6 +2740,7 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
   var newest="0-";
   var newestsequence;
   var lines = value.split('\n');
+  var haspillarviews = false;
   for (line of lines) {
     var [group, sequencename, filename] = line.split('/');
     if (sequencename == undefined) {
@@ -2747,6 +2749,9 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
     if (filename.includes("~")) {
        /* skip fsck recovered files for now */
        continue;
+    }
+    if (filename.includes("_pillar.mp4")) {
+      haspillarviews = true;
     }
     if (sequencename.includes("json")) {
        /* this shouldn't be necessary, and can be removed once
@@ -2785,6 +2790,12 @@ readfile({url:'cgi-bin/videolist.sh', callback:function(value) {
       } else {
         log("no video sequence for " + filename);
       }
+    }
+  }
+  if (haspillarviews) {
+    var pillarlayouts = document.querySelectorAll('.dropdownitem.pillar');
+    for (i of pillarlayouts) {
+      i.style.display = 'block';
     }
   }
 
