@@ -844,6 +844,10 @@ function set_sys_param() {
 }
 
 function log_coretemp() {
+  if [[ ! -e /sys/class/thermal/thermal_zone0/temp ]]
+  then
+    return
+  fi
   local core_temp
   local core_temp1
   local core_temp2
