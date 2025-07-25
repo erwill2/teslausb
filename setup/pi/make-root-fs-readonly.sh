@@ -50,7 +50,7 @@ systemctl disable radxa-adbd radxa-usbnet &> /dev/null || true
 systemctl disable armbian-led-state &> /dev/null || true
 
 log_progress "Removing unwanted packages..."
-apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile bluez
+apt-get remove -y --force-yes --purge triggerhappy logrotate dphys-swapfile
 apt-get -y --force-yes autoremove --purge
 # Replace log management with busybox (use logread if needed)
 log_progress "Installing ntp and busybox-syslogd..."

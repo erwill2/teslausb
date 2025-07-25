@@ -11,7 +11,7 @@ echo "dtoverlay=dwc2" >> "${ROOTFS_DIR}/boot/firmware/config.txt"
 
 # remove unwanted packages, disable unwanted services, and disable swap
 on_chroot << EOF
-apt-get remove -y --force-yes --purge triggerhappy bluez userconf-pi dphys-swapfile firmware-libertas firmware-realtek firmware-atheros mkvtoolnix
+apt-get remove -y --force-yes --purge triggerhappy userconf-pi dphys-swapfile firmware-libertas firmware-realtek firmware-atheros mkvtoolnix
 apt-get -y --force-yes autoremove
 systemctl disable keyboard-setup
 systemctl disable resize2fs_once
