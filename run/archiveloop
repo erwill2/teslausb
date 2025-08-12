@@ -46,8 +46,6 @@ fi
 
 export CAM_MOUNT=/mnt/cam
 export MUSIC_MOUNT=/mnt/music
-export ARCHIVE_MOUNT=/mnt/archive
-export MUSIC_ARCHIVE_MOUNT=/mnt/musicarchive
 
 # read the setup variables and define other environment variables and functions
 source /root/bin/envsetup.sh
@@ -80,6 +78,11 @@ then
       exit 1
       ;;
   esac
+elif [ "${ARCHIVE_SYSTEM:-none}" = "cifs" ]
+then
+  # For CIFS 
+  [[ -n "${SHARE_NAME:-}" && -f /backingfiles/cam_disk.bin ]] && export ARCHIVE_MOUNT=/mnt/archive
+  [[ -n "${MUSIC_SHARE_NAME:-}" && -f /backingfiles/music_disk.bin ]] && export MUSIC_ARCHIVE_MOUNT=/mnt/musicarchive
 fi
 
 function timestamp () {
@@ -658,7 +661,7 @@ function archive_clips () {
 
   if ! /root/bin/connect-archive.sh
   then
-    log "Couldn't connect archive, skipping archive step"
+    log "Couldn't connect archive, skipping archive step."
     return
   fi
 
