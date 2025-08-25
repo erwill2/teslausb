@@ -256,7 +256,7 @@ function check_and_configure_tesla_ble () {
       DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install bluez
     fi
 
-    if apt-cache search pi-bluetooth
+    if [[ -n "$(apt-cache search pi-bluetooth)" ]]
     then
         if dpkg-query -W --showformat='${db:Status-Status}\n' "pi-bluetooth" 2>/dev/null | grep -q '^installed$'
         then
