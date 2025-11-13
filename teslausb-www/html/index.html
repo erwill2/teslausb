@@ -951,7 +951,7 @@ video {
       <div class="videoholder layout3">
         <video disableRemotePlayback playsinline id="leftrepeaterview" class="videogriditem leftrepeaterview" style="z-index:1;"></video>
         <canvas id="leftrepeaterviewfreeze" class="videogriditem leftrepeaterview"  style="z-index:0;"></canvas>
-        
+
         <video disableRemotePlayback playsinline id="leftpillarview" class="videogriditem leftpillarview" style="z-index:1;"></video>
         <canvas id="leftpillarviewfreeze" class="videogriditem leftpillarview"  style="z-index:0;"></canvas>
 
@@ -960,10 +960,10 @@ video {
 
         <video disableRemotePlayback playsinline id="rightrepeaterview" class="videogriditem rightrepeaterview" style="z-index:1;"></video>
         <canvas id="rightrepeaterviewfreeze" class="videogriditem rightrepeaterview" style="z-index:0;"></canvas>
-        
+
         <video disableRemotePlayback playsinline id="rightpillarview" class="videogriditem rightpillarview" style="z-index:1;"></video>
         <canvas id="rightpillarviewfreeze" class="videogriditem rightpillarview" style="z-index:0;"></canvas>
-        
+
         <div class="videogriditem mapview" style="margin:0px;z-index:0;">
           <iframe id="sentrymap"></iframe>
         </div>
@@ -1130,7 +1130,7 @@ function setLayout(layout) {
     backview.classList.remove("flipped");
     videogrid.classList="videoholder layout5";
   } else if (layout == 6) {
-    // map-front-info on top, pillars on the side, repeaters and rear on bottom 
+    // map-front-info on top, pillars on the side, repeaters and rear on bottom
     videogrid.classList="videoholder layout6";
   } else {
     layout = 3;
@@ -2080,7 +2080,7 @@ class VideoSegment {
     } else {
       videoelems[5].removeAttribute('src');
     }
-    
+
     this.numangles = 0;
     for (var i=0; i < 6;i++) {
       var v = videoelems[i];
