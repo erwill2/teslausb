@@ -45,6 +45,7 @@
 #include <linux/limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/sysmacros.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -54,20 +55,99 @@
 
 const char *source;
 
+static void convert_timestamp(struct timespec* ts, struct statx_timestamp* xts) {
+  if (sizeof(ts->tv_sec) == 4 && xts->tv_sec > INT32_MAX) {
+    ts->tv_sec = INT32_MAX;
+  } else {
+    ts->tv_sec = xts->tv_sec;
+  }
+  ts->tv_nsec = xts->tv_nsec;
+}
+
+static int statx2stat(struct stat* st, struct statx* stx) {
+  memset(st, 0, sizeof(*st));
+
+  if (stx->stx_mask & STATX_TYPE) {
+    st->st_mode = stx->stx_mode & S_IFMT;
+  }
+
+  if (stx->stx_mask & STATX_MODE) {
+    st->st_mode |= stx->stx_mode & ~S_IFMT;
+  }
+
+  if (stx->stx_mask & STATX_NLINK) {
+    st->st_nlink = stx->stx_nlink;
+  }
+
+  if (stx->stx_mask & STATX_UID) {
+    st->st_uid = stx->stx_uid;
+  }
+
+  if (stx->stx_mask & STATX_GID) {
+    st->st_gid = stx->stx_gid;
+  }
+
+  if (stx->stx_mask & STATX_INO) {
+    st->st_ino = stx->stx_ino;
+  }
+
+  if (stx->stx_mask & STATX_SIZE) {
+    st->st_size = stx->stx_size;
+  }
+
+  if (stx->stx_mask & STATX_BLOCKS) {
+    st->st_blocks = stx->stx_blocks;
+  }
+
+  if (stx->stx_mask & STATX_ATIME) {
+    convert_timestamp(&st->st_atim, &stx->stx_atime);
+  }
+
+  if (stx->stx_mask & STATX_MTIME) {
+    convert_timestamp(&st->st_mtim, &stx->stx_mtime);
+  }
+
+  if (stx->stx_mask & STATX_CTIME) {
+    convert_timestamp(&st->st_ctim, &stx->stx_ctime);
+  }
+
+  st->st_rdev = makedev(stx->stx_rdev_major, stx->stx_rdev_minor);
+  st->st_dev = makedev(stx->stx_dev_major, stx->stx_dev_minor);
+
+  return 0;
+}
+
+static int mystat(const char* path, struct stat *st) {
+  int ret = 0;
+#if 0
+  ret = stat(path, st);
+  if (ret == 0) {
+    return 0;
+  }
+  printf("do_getattr: stat(%s) returned %d (%d: %s)\n", path, ret, errno, strerrorname_np(errno));
+#endif
+
+  struct statx stx;
+  ret = statx(0, path, 0, STATX_BASIC_STATS, &stx);
+
+  if (ret == 0) {
+    return statx2stat(st, &stx);
+  }
+  printf("do_getattr: statx(%s) returned %d (%d: %s)\n", path, ret, errno, strerror(errno));
+
+  ret = lstat(path, st);
+  if (ret == 0) {
+    return 0;
+  }
+  printf("do_getattr: lstat(%s) returned %d (%d: %s)\n", path, ret, errno, strerror(errno));
+  return -errno;
+}
+
 static int do_getattr( const char *path, struct stat *st ) {
   printf("do_getattr(%s)\n", path);
   char pathbuf[PATH_MAX];
   snprintf(pathbuf, sizeof(pathbuf), "%s%s", source, path);
-  int ret = stat(pathbuf, st);
-  if (ret != 0) {
-    ret = lstat(pathbuf, st);
-    if (ret != 0) {
-      printf("stat(%s) returned %d\n", pathbuf, ret);
-      return -errno;
-    }
-    printf("invalid link: %s\n", pathbuf);
-  }
-  return ret;
+  return mystat(pathbuf, st);
 }
 
 static int do_readdir(const char *path, void *buffer, fuse_fill_dir_t filler,
