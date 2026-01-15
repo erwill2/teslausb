@@ -43,7 +43,7 @@ function write_all_leds {
   for led in /sys/class/leds/*
   do
     echo "$1" > "$led/$2" || true
-  done
+  done &> /dev/null
 }
 
 function error_strobe() {
