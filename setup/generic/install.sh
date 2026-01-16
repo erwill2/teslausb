@@ -193,6 +193,11 @@ then
   apt install -y fdisk
 fi
 
+if [ ! -x "$(command -v sudo)" ]
+then
+  apt install -y sudo
+fi
+
 
 # indicate we're waiting for the user to log in and finish setup
 flash_rapidly
