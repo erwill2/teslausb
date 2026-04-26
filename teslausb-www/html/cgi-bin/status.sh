@@ -46,12 +46,15 @@ fi
 
 read -r -d ' ' ut < /proc/uptime
 
+fan_speed=$(cat /sys/devices/platform/cooling_fan/hwmon/*/fan1_input 2>/dev/null || echo "N/A")
+
 cat << EOF
 HTTP/1.0 200 OK
 Content-type: application/json
 
 {
    "cpu_temp": "$(cat /sys/class/thermal/thermal_zone0/temp)",
+   "fan_speed": "$fan_speed",
    "num_snapshots": "$numsnapshots",
    "snapshot_oldest": "$oldestsnapshot",
    "snapshot_newest": "$newestsnapshot",

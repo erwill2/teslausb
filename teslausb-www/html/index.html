@@ -864,6 +864,7 @@ video {
       <div class="pistatus">
         <div class="status_uptime"></div>
         <div class="status_temp"></div>
+        <div class="status_fan"></div>
         <div class="status_drives"></div>
         <div class="status_space"></div>
         <div class="status_snapshots"></div>
@@ -1712,8 +1713,16 @@ function showstatus() {
       if (statusvals.cpu_temp != "") {
         tempdiv.innerText = "Core temperature: " + (statusvals.cpu_temp / 1000).toFixed(1) + " C";
         tempdiv.style.display = "inherit";
-      } else{
+      } else {
         tempdiv.style.display = "none";
+      }
+
+      var fandiv = document.querySelector(".status_fan");
+      if (statusvals.fan_speed != "" && statusvals.fan_speed != "N/A") {
+        fandiv.innerText = "Fan speed: " + statusvals.fan_speed + " RPM";
+        fandiv.style.display = "inherit";
+      } else {
+        fandiv.style.display = "none";
       }
 
       var drivesdiv = document.querySelector(".status_drives");
