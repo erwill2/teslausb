@@ -1265,7 +1265,7 @@ function starttailing({url, pre, button}) {
         var scrollpos=pre.scrollTop+pre.clientHeight;
         var scrollheight=pre.scrollHeight;
         var shouldgotobottom=(Math.abs(scrollpos-scrollheight) < 5)
-        pre.textContent+=request.responseText.substring(1);
+        pre.appendChild(document.createTextNode(request.responseText.substring(1)));
         if (shouldgotobottom) {
           pre.scrollTo(left,pre.scrollHeight);
         }
