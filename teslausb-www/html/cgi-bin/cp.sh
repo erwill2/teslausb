@@ -10,6 +10,18 @@ do
   urlargs[i]="$(echo -e "${val//%/\\x}")"
 done
 
+for arg in "${urlargs[@]:1}"
+do
+  if [[ "$arg" == /* ]] || [[ "$arg" == *".."* ]]
+  then
+    echo "HTTP/1.0 400 Bad Request"
+    echo "Content-type: text/plain"
+    echo
+    echo "FAILED"
+    exit 0
+  fi
+done
+
 cd "$DOCUMENT_ROOT/${urlargs[0]}"
 
 cat << EOF
@@ -17,7 +29,7 @@ HTTP/1.0 200 OK
 Content-type: text/plain
 
 EOF
-if cp "${urlargs[@]:1}"  &> /dev/null
+if cp -- "${urlargs[@]:1}"  &> /dev/null
 then
   echo OK
 else
