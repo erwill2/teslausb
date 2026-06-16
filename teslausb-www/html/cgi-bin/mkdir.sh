@@ -17,6 +17,14 @@ HTTP/1.0 200 OK
 Content-type: text/plain
 
 EOF
+
+for arg in "${urlargs[@]:1}"; do
+  if [[ ! "$arg" =~ ^[a-zA-Z0-9_\ \.-]+$ ]] || [[ "$arg" == -* ]]; then
+    echo FAILED
+    exit 0
+  fi
+done
+
 if mkdir "${urlargs[@]:1}"
 then
   echo OK

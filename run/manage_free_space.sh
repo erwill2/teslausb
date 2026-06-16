@@ -23,26 +23,31 @@ then
 fi
 
 function manage_free_space {
-  # Try to make free space equal to 10 GB plus three percent of the total
-  # available space. This should be enough to hold the next hour of
-  # recordings without completely filling up the filesystem.
-  # todo: this could be put in a background task and with a lower free
-  # space requirement, to delete old snapshots just before running out
-  # of space and thus make better use of space
-  local reserve="$1"
+  echo -n manage_free_space > /proc/self/comm
+
+  # Try to make free space equal to 500 MB plus three percent of the total
+  # available space. This deletes old snapshots just before running out
+  # of space and thus make better use of space.
+  local reserve=524288000
+  local threepctoftotalspace
+  threepctoftotalspace=$(eval "$(stat --file-system --format="echo \$((%b*%S/33))" /backingfiles/cam_disk.bin)")
+  reserve=$((reserve+threepctoftotalspace))
+
   while true
   do
     local freespace
     freespace=$(eval "$(stat --file-system --format="echo \$((%f*%S))" /backingfiles/cam_disk.bin)")
     if [ "$freespace" -gt "$reserve" ]
     then
-      exit 0
+      sleep 30
+      continue
     fi
     if ! stat /backingfiles/snapshots/snap-*/snap.bin > /dev/null 2>&1
     then
       log "Warning: low space for new snapshots, but no snapshots exist."
       log "Please use a larger storage medium or reduce CAM_SIZE"
-      exit 1
+      sleep 30
+      continue
     fi
     # if there's only one snapshot then we likely just took it, so don't immediately delete it
     if [ "$(find /backingfiles/snapshots/ -name snap.bin 2> /dev/null | wc -l)" -lt 2 ]
@@ -50,7 +55,8 @@ function manage_free_space {
       # there's only one snapshot and yet we're low on space
       log "Warning: low space for new snapshots, but only one snapshot exists."
       log "Please use a larger storage medium or reduce CAM_SIZE"
-      exit 1
+      sleep 30
+      continue
     fi
 
     oldest=$(find /backingfiles/snapshots -maxdepth 1 -name 'snap-*' | sort | head -1)
@@ -60,6 +66,4 @@ function manage_free_space {
   done
 }
 
-# This will normally be called with a value of "10G + 3% of total space",
-# but default to 20G if not specified
-manage_free_space "${1:-21474836480}"
+manage_free_space
