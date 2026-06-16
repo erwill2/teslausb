@@ -10,6 +10,18 @@ do
   urlargs[i]="$(echo -e "${val//%/\\x}")"
 done
 
+for arg in "${urlargs[@]}"; do
+  if [[ "$arg" == /* ]] || [[ "$arg" == *".."* ]]; then
+    cat << EOF
+HTTP/1.0 400 Bad Request
+Content-type: text/plain
+
+FAILED
+EOF
+    exit 0
+  fi
+done
+
 cd "$DOCUMENT_ROOT/${urlargs[0]}"
 
 cat << EOF
@@ -17,7 +29,7 @@ HTTP/1.0 200 OK
 Content-type: text/plain
 
 EOF
-if mkdir "${urlargs[@]:1}"
+if mkdir -- "${urlargs[@]:1}"
 then
   echo OK
 else
