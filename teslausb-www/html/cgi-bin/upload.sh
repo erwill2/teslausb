@@ -13,6 +13,21 @@ done
 cd "$DOCUMENT_ROOT/${urlargs[0]}"
 
 destpath="${urlargs[1]}"
+
+docroot="$(realpath "$DOCUMENT_ROOT")"
+resolved_dest="$(realpath -m "$destpath")"
+
+if [[ "$resolved_dest" != "$docroot"/* && "$resolved_dest" != "$docroot" ]]
+then
+  cat << EOF
+HTTP/1.0 403 Forbidden
+Content-type: text/plain
+
+Forbidden
+EOF
+  exit 0
+fi
+
 echo $destpath >> /tmp/upload.txt
 destdir=${destpath%/*}
 if [ "$destdir" = "$destpath" ]
