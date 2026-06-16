@@ -61,10 +61,12 @@ def _execute_request(url=None, method=None, data=None, require_vehicle_online=Tr
             )
 
             # Tesla REST Service sometimes misbehaves... this seems to be caused by an invalid/expired auth token
-            # TODO: Remove auth token and retry?
             if result.get('response') is None:
-                _error(f"Fatal Error: Tesla REST Service returned an invalid response: {result}")
-                sys.exit(1)
+                _error(f"Tesla REST Service returned an invalid response: {result}")
+                _error("Invalidating access token and retrying...")
+                _invalidate_access_token()
+                time.sleep(5)
+                continue
 
             vehicle_online = result['response']['state'] == "online"
             if vehicle_online:
