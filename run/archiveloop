@@ -739,26 +739,6 @@ function snapshotloop {
   done
 }
 
-function freespacemanager {
-  echo -n freespacemanager > /proc/self/comm
-  # 10G
-  local reserve=10737418240
-  local threepctoftotalspace
-  threepctoftotalspace=$(eval "$(stat --file-system --format="echo \$((%b*%S/33))" /backingfiles/cam_disk.bin)")
-  reserve=$((reserve+threepctoftotalspace))
-
-  while true
-  do
-    local freespace
-    freespace=$(eval "$(stat --file-system --format="echo \$((%f*%S))" /backingfiles/cam_disk.bin)")
-    if [ "$freespace" -lt "$reserve" ]
-    then
-      /root/bin/manage_free_space.sh "$reserve" || sleep 30
-    fi
-    sleep 30
-  done
-}
-
 function logrotator {
   echo -n logrotator > /proc/self/comm
   while true
@@ -844,7 +824,7 @@ set_sys_param /sys/devices/system/cpu/cpufreq/policy0/scaling_governor CPU_GOVER
 if has_cam_disk
 then
   snapshotloop &
-  freespacemanager &
+  /root/bin/manage_free_space.sh &
 fi
 logrotator &
 wifichecker &

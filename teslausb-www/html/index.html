@@ -1010,7 +1010,7 @@ video {
           <input type="range" class="slider" id="position" name="position"
                  min="0" max="60" style="width:90%;max-width:600px;height:30px;z-index:2;"
                  onmousemove="slidermousemove(event)">
-          <div class="sliderpositionbubble">00:00</div>
+          <div class="sliderpositionbubble">00:00:00</div>
           <div style="width:90%;max-width:600px;height:26px;margin-top:-24px;">
             <canvas id="tickmarkscanvas" style="width:100%;height:100%;"></canvas>
           </div>
@@ -3007,9 +3007,8 @@ function slidermousemove(e) {
     off = 0;
   }
   var len = seq.length();
-  var exactidx = len * off / width;
-  var idx = Math.trunc(exactidx);
-  var fraction = exactidx - idx;
+  var exactIdx = len * off / width;
+  var idx = Math.trunc(exactIdx);
   var bub = document.querySelector('.sliderpositionbubble');
   bub.style.setProperty('--position', "" + (e.target.getBoundingClientRect().x + off - 25) + 'px');
   var segment = seq.getSegmentByIndex(idx);
@@ -3018,6 +3017,7 @@ function slidermousemove(e) {
     return;
   }
   var secondsinday = stringtoseconds(segment.datetime.substring(11, 19));
+  var fraction = exactIdx - idx;
   secondsinday += Math.trunc(fraction * 60);
   bub.innerText = secondstostring(secondsinday);
 }
