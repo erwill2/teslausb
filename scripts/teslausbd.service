@@ -1,0 +1,19 @@
+[Unit]
+Description=TeslaUSB Backend Daemon
+After=local-fs.target
+Wants=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/teslausbd
+Restart=always
+RestartSec=5
+KillMode=process
+KillSignal=SIGTERM
+TimeoutStopSec=15
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=teslausbd
+
+[Install]
+WantedBy=multi-user.target
