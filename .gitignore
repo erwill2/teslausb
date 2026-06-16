@@ -4,7 +4,7 @@
 *.ipr
 *.iws
 .idea/
-node_modules/
-package-lock.json
-package.json
-benchmark.js
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
