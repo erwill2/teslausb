@@ -20,8 +20,6 @@ class ContextMenu {
     }
     this.contextmenuholder.innerHTML = '<div class="cm-menu"></div>';
     this.contextmenupanel = this.contextmenuholder.querySelector(".cm-menu");
-//    this.hide = this.hide.bind(this);
-//    this.blur = this.blur.bind(this);
     items.forEach((item) => {
       var div = document.createElement("div");
       div.classList.add("cm-item");
