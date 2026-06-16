@@ -2083,7 +2083,7 @@ class VideoSegment {
         vid.onended=this.onVideoEnded;
         vid.onerror=this.onVideoError;
       }
-      if (this.autoseek) {
+      if (this.autoseek !== undefined && this.autoseek !== -1) {
         this.seekTo(this.autoseek);
         this.autoseek = -1;
       }
@@ -2225,8 +2225,15 @@ class VideoSegment {
     if (this.readytoplay == true) {
       log("segment seekTo " + position);
       for (var vid of this.activevideoelems) {
-        // todo: account for differences in length
-        vid.currentTime=position;
+        var offset = this.longestvideoelem.duration - vid.duration;
+        vid.currentTime = Math.max(0, position - offset);
+        if (position < offset) {
+          if (!vid.paused) {
+            vid.pause();
+          }
+        } else if (vid.paused && currentsequence.isPlaying()) {
+          vid.play();
+        }
       }
       return;
     }
