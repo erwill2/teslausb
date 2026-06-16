@@ -53,6 +53,7 @@ def _execute_request(url=None, method=None, data=None, require_vehicle_online=Tr
     """
     if require_vehicle_online:
         vehicle_online = False
+        auth_retries = 0
         while not vehicle_online:
             _log("Attempting to wake up Vehicle (ID:{})".format(tesla_api_json['id']))
             result = _rest_request(
@@ -61,8 +62,12 @@ def _execute_request(url=None, method=None, data=None, require_vehicle_online=Tr
             )
 
             # Tesla REST Service sometimes misbehaves... this seems to be caused by an invalid/expired auth token
-            # TODO: Remove auth token and retry?
             if result.get('response') is None:
+                if auth_retries < 3:
+                    _error(f"Error: Tesla REST Service returned an invalid response, invalidating token and retrying: {result}")
+                    _invalidate_access_token()
+                    auth_retries += 1
+                    continue
                 _error(f"Fatal Error: Tesla REST Service returned an invalid response: {result}")
                 sys.exit(1)
 
@@ -315,9 +320,12 @@ def get_vehicle_data():
 def get_vehicle_online_state():
     # list_vehicles gets the state of each vehicle without waking them up
     result = list_vehicles()
-    for vehicle_dict in result['response']:
-        if ( vehicle_dict['vehicle_id'] == tesla_api_json['vehicle_id']):
-            return vehicle_dict['state']
+    vehicle = next(
+        (v for v in result['response'] if v['vehicle_id'] == tesla_api_json['vehicle_id']),
+        None
+    )
+    if vehicle is not None:
+        return vehicle['state']
     _error("Could not find vehicle");
     sys.exit(1)
 
@@ -606,4 +614,5 @@ def main():
         print(result, flush=True)
 
 
-main()
+if __name__ == '__main__':
+    main()
