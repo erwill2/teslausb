@@ -20,9 +20,11 @@ if username.startswith('@'):
 if username.find(':') > 0:
     username = username.split(':')[0]
 
-async def main() -> None:
+device_name = socket.gethostname()
+
+async def main(device_name: str) -> None:
     client = AsyncClient(homeserver, username)
-    response = await client.login(password, device_name=socket.gethostname())
+    response = await client.login(password, device_name=device_name)
 
     if not isinstance(response, LoginResponse):
         sys.stderr.write('Failed to connect to Matrix server.\n')
@@ -39,4 +41,4 @@ async def main() -> None:
     await client.sync(timeout=30000)
     sys.exit(0)
 
-asyncio.get_event_loop().run_until_complete(main())
+asyncio.get_event_loop().run_until_complete(main(device_name))
