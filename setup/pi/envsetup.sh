@@ -55,9 +55,7 @@ function read_setup_variables {
     return 1
   fi
 
-  # TODO: change this "declare" to "local" when github updates
-  # to a newer shellcheck.
-  declare -A newnamefor
+  local -A newnamefor
 
   newnamefor[archiveserver]=ARCHIVE_SERVER
   newnamefor[camsize]=CAM_SIZE
