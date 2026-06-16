@@ -6,22 +6,16 @@ import socket
 
 from nio import AsyncClient, LoginResponse
 
-if len(sys.argv) != 6:
-    sys.stderr.write('usage: %s HOMESERVER_URL USERNAME PASSWORD ROOM_ID MESSAGE_TEXT\n' % sys.argv[0])
-    sys.exit(1)
+async def send_message(homeserver: str, username: str, password: str, room_id: str, message: str) -> None:
+    if homeserver.endswith('/'):
+        homeserver = homeserver[:-1]
 
-(homeserver, username, password, room_id, message) = sys.argv[1:6]
+    if username.startswith('@'):
+        username = username[1:]
 
-if homeserver.endswith('/'):
-    homeserver = homeserver[:-1]
+    if username.find(':') > 0:
+        username = username.split(':')[0]
 
-if username.startswith('@'):
-    username = username[1:]
-
-if username.find(':') > 0:
-    username = username.split(':')[0]
-
-async def main() -> None:
     client = AsyncClient(homeserver, username)
     response = await client.login(password, device_name=socket.gethostname())
 
@@ -38,6 +32,16 @@ async def main() -> None:
         }
     )
     await client.sync(timeout=30000)
+
+def main() -> None:
+    if len(sys.argv) != 6:
+        sys.stderr.write('usage: %s HOMESERVER_URL USERNAME PASSWORD ROOM_ID MESSAGE_TEXT\n' % sys.argv[0])
+        sys.exit(1)
+
+    (homeserver, username, password, room_id, message) = sys.argv[1:6]
+
+    asyncio.get_event_loop().run_until_complete(send_message(homeserver, username, password, room_id, message))
     sys.exit(0)
 
-asyncio.get_event_loop().run_until_complete(main())
+if __name__ == '__main__':
+    main()
