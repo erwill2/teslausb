@@ -90,7 +90,7 @@ function add_drive () {
   local useexfat="$5"
   local mountpoint=/mnt/"$name"
 
-  if image_matches_params "$filename" "$size" &> /dev/null
+  if image_matches_params "$filename" "$size" "$useexfat" &> /dev/null
   then
     return
   fi
@@ -180,6 +180,7 @@ function release_all_images () {
 function image_matches_params () {
   local image_file="$1"
   local requested_image_size="$2"
+  local requested_exfat="${3:-}"
 
   if [ "$requested_image_size" -gt 0 ]
   then
@@ -191,7 +192,25 @@ function image_matches_params () {
         log_progress "$image_file should be resized (to $requested_image_size from $current_image_size)"
         return 1
       fi
-      # TODO check if filesystem matches
+      if [ -n "$requested_exfat" ]
+      then
+        local current_id
+        current_id=$(sfdisk -l -o Id -q "$image_file" 2>/dev/null | tail -1 | tr -d ' ')
+        if [ "$requested_exfat" = true ]
+        then
+          if [ "$current_id" != "7" ]
+          then
+            log_progress "$image_file should be recreated to use exFAT"
+            return 1
+          fi
+        else
+          if [ "$current_id" != "c" ] && [ "$current_id" != "C" ]
+          then
+            log_progress "$image_file should be recreated to use FAT32"
+            return 1
+          fi
+        fi
+      fi
     else
       log_progress "$image_file should be created"
       return 1
@@ -247,10 +266,10 @@ MUSIC_DISK_SIZE="$(calc_size MUSIC_SIZE)"
 LIGHTSHOW_DISK_SIZE="$(calc_size LIGHTSHOW_SIZE)"
 BOOMBOX_DISK_SIZE="$(calc_size BOOMBOX_SIZE)"
 
-if image_matches_params "$CAM_DISK_FILE_NAME" "$CAM_DISK_SIZE" && \
-   image_matches_params "$MUSIC_DISK_FILE_NAME" "$MUSIC_DISK_SIZE" && \
-   image_matches_params "$LIGHTSHOW_DISK_FILE_NAME" "$LIGHTSHOW_DISK_SIZE" && \
-   image_matches_params "$BOOMBOX_DISK_FILE_NAME" "$BOOMBOX_DISK_SIZE"
+if image_matches_params "$CAM_DISK_FILE_NAME" "$CAM_DISK_SIZE" "$USE_EXFAT" && \
+   image_matches_params "$MUSIC_DISK_FILE_NAME" "$MUSIC_DISK_SIZE" "$USE_EXFAT" && \
+   image_matches_params "$LIGHTSHOW_DISK_FILE_NAME" "$LIGHTSHOW_DISK_SIZE" "$USE_EXFAT" && \
+   image_matches_params "$BOOMBOX_DISK_FILE_NAME" "$BOOMBOX_DISK_SIZE" "$USE_EXFAT"
 then
   log_progress "No need to update disk images"
   exit 0
