@@ -297,7 +297,8 @@ fi
 # if we get here, one or more of the images need to be created, deleted or updated, and there should be
 # enough space to do so, possibly requiring deleting some or all of the snapshots to free up space first.
 
-# TODO: resize images where possible, instead of recreating them
+# Note: Images are recreated rather than resized because resizing filesystems within
+# loop devices safely is complex, requires external tools, and risks data loss.
 if [ -e "$CAM_DISK_FILE_NAME" ] || [ -e "$MUSIC_DISK_FILE_NAME" ] || [ -e "$LIGHTSHOW_DISK_FILE_NAME" ] || [ -e "$BOOMBOX_DISK_FILE_NAME" ] || [ -e "$BACKINGFILES_MOUNTPOINT/snapshots" ]
 then
   if [ -t 0 ]
