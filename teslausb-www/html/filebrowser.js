@@ -793,7 +793,7 @@ class FileBrowser {
         this.addDir(root, line.substring(2));
       }
       if (line.indexOf("s:") == 0) {
-        let [freebytes, totalbytes] = line.substring(2).split(":");
+        let [, freebytes, totalbytes] = line.split(":");
         this.setDiskStats(freebytes, totalbytes);
       } else if (switchtopath && ! line.indexOf("D:") == 0) {
         this.addFileEntry(line);
