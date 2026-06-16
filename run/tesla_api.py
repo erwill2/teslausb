@@ -315,9 +315,12 @@ def get_vehicle_data():
 def get_vehicle_online_state():
     # list_vehicles gets the state of each vehicle without waking them up
     result = list_vehicles()
-    for vehicle_dict in result['response']:
-        if ( vehicle_dict['vehicle_id'] == tesla_api_json['vehicle_id']):
-            return vehicle_dict['state']
+    vehicle = next(
+        (v for v in result['response'] if v['vehicle_id'] == tesla_api_json['vehicle_id']),
+        None
+    )
+    if vehicle is not None:
+        return vehicle['state']
     _error("Could not find vehicle");
     sys.exit(1)
 
