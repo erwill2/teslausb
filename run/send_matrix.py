@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys
-import time
 import asyncio
 import socket
 
@@ -16,8 +15,17 @@ async def send_message(homeserver: str, username: str, password: str, room_id: s
     if username.find(':') > 0:
         username = username.split(':')[0]
 
+if username.startswith('@'):
+    username = username[1:]
+
+if username.find(':') > 0:
+    username = username.split(':')[0]
+
+device_name = socket.gethostname()
+
+async def main(device_name: str) -> None:
     client = AsyncClient(homeserver, username)
-    response = await client.login(password, device_name=socket.gethostname())
+    response = await client.login(password, device_name=device_name)
 
     if not isinstance(response, LoginResponse):
         sys.stderr.write('Failed to connect to Matrix server.\n')
@@ -43,5 +51,4 @@ def main() -> None:
     asyncio.get_event_loop().run_until_complete(send_message(homeserver, username, password, room_id, message))
     sys.exit(0)
 
-if __name__ == '__main__':
-    main()
+asyncio.get_event_loop().run_until_complete(main(device_name))

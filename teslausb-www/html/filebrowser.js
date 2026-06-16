@@ -668,7 +668,18 @@ class FileBrowser {
       } else {
         pathSoFar = pathParts[i];
       }
-      var node = root.querySelector(`[data-fullpath="${this.stringEncode(pathSoFar)}"]`);
+      var encodedPathSoFar = this.stringEncode(pathSoFar);
+      var node = null;
+      for (var child = root.firstElementChild; child !== null; child = child.nextElementSibling) {
+        var details = child.firstElementChild;
+        if (details) {
+            var summary = details.firstElementChild;
+            if (summary && summary.dataset.fullpath === encodedPathSoFar) {
+                node = summary;
+                break;
+            }
+        }
+      }
       if (node == null) {
         /* level 'i' doesn't exist yet, add it */
         var newPath = this.createTreeItem(pathParts[i], pathSoFar);
