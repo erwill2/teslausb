@@ -8,6 +8,13 @@ for ((i=0; i<${len}; i++ ))
 do
   val="${urlargs[i]//+/ }"
   urlargs[i]="$(echo -e "${val//%/\\x}")"
+  if [[ "${urlargs[i]}" == *".."* ]]; then
+    echo "HTTP/1.0 400 Bad Request"
+    echo "Content-type: text/plain"
+    echo
+    echo "Bad request"
+    exit 1
+  fi
 done
 
 cd "$DOCUMENT_ROOT/${urlargs[0]}"
