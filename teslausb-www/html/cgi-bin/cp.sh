@@ -8,6 +8,25 @@ for ((i=0; i<${len}; i++ ))
 do
   val="${urlargs[i]//+/ }"
   urlargs[i]="$(echo -e "${val//%/\\x}")"
+  if [[ "${urlargs[i]}" == *".."* ]]; then
+    echo "HTTP/1.0 400 Bad Request"
+    echo "Content-type: text/plain"
+    echo
+    echo "Bad request"
+    exit 1
+  fi
+done
+
+for arg in "${urlargs[@]:1}"
+do
+  if [[ "$arg" == /* ]] || [[ "$arg" == *".."* ]]
+  then
+    echo "HTTP/1.0 400 Bad Request"
+    echo "Content-type: text/plain"
+    echo
+    echo "FAILED"
+    exit 0
+  fi
 done
 
 for arg in "${urlargs[@]}"; do

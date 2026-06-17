@@ -8,6 +8,13 @@ for ((i=0; i<${len}; i++ ))
 do
   val="${urlargs[i]//+/ }"
   urlargs[i]="$(echo -e "${val//%/\\x}")"
+  if [[ "${urlargs[i]}" == *".."* ]]; then
+    echo "HTTP/1.0 400 Bad Request"
+    echo "Content-type: text/plain"
+    echo
+    echo "Bad request"
+    exit 1
+  fi
 done
 
 for arg in "${urlargs[@]}"; do
@@ -25,6 +32,21 @@ done
 cd "$DOCUMENT_ROOT/${urlargs[0]}"
 
 destpath="${urlargs[1]}"
+
+docroot="$(realpath "$DOCUMENT_ROOT")"
+resolved_dest="$(realpath -m "$destpath")"
+
+if [[ "$resolved_dest" != "$docroot"/* && "$resolved_dest" != "$docroot" ]]
+then
+  cat << EOF
+HTTP/1.0 403 Forbidden
+Content-type: text/plain
+
+Forbidden
+EOF
+  exit 0
+fi
+
 echo $destpath >> /tmp/upload.txt
 destdir=${destpath%/*}
 if [ "$destdir" = "$destpath" ]

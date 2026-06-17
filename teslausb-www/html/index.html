@@ -1010,7 +1010,7 @@ video {
           <input type="range" class="slider" id="position" name="position"
                  min="0" max="60" style="width:90%;max-width:600px;height:30px;z-index:2;"
                  onmousemove="slidermousemove(event)">
-          <div class="sliderpositionbubble">00:00</div>
+          <div class="sliderpositionbubble">00:00:00</div>
           <div style="width:90%;max-width:600px;height:26px;margin-top:-24px;">
             <canvas id="tickmarkscanvas" style="width:100%;height:100%;"></canvas>
           </div>
@@ -2083,7 +2083,7 @@ class VideoSegment {
         vid.onended=this.onVideoEnded;
         vid.onerror=this.onVideoError;
       }
-      if (this.autoseek) {
+      if (this.autoseek !== undefined && this.autoseek !== -1) {
         this.seekTo(this.autoseek);
         this.autoseek = -1;
       }
@@ -2225,8 +2225,15 @@ class VideoSegment {
     if (this.readytoplay == true) {
       log("segment seekTo " + position);
       for (var vid of this.activevideoelems) {
-        // todo: account for differences in length
-        vid.currentTime=position;
+        var offset = this.longestvideoelem.duration - vid.duration;
+        vid.currentTime = Math.max(0, position - offset);
+        if (position < offset) {
+          if (!vid.paused) {
+            vid.pause();
+          }
+        } else if (vid.paused && currentsequence.isPlaying()) {
+          vid.play();
+        }
       }
       return;
     }
@@ -2982,10 +2989,10 @@ function stringtoseconds(s) {
 function secondstostring(t) {
   var hours = Math.trunc(t / 3600);
   var minutes = Math.trunc((t % 3600) / 60);
-  var seconds = t % 60;
+  var seconds = Math.trunc(t % 60);
   return hours.toString().padStart(2, '0')
          + ":" + minutes.toString().padStart(2, '0')
-  //     + ":" + seconds.toString().padStart(2, '0')
+         + ":" + seconds.toString().padStart(2, '0')
 }
 
 function slidermousemove(e) {
@@ -3007,7 +3014,8 @@ function slidermousemove(e) {
     off = 0;
   }
   var len = seq.length();
-  var idx = Math.trunc(len * off / width);
+  var exactIdx = len * off / width;
+  var idx = Math.trunc(exactIdx);
   var bub = document.querySelector('.sliderpositionbubble');
   bub.style.setProperty('--position', "" + (e.target.getBoundingClientRect().x + off - 25) + 'px');
   var segment = seq.getSegmentByIndex(idx);
@@ -3015,8 +3023,9 @@ function slidermousemove(e) {
     log("no segment for index " + idx);
     return;
   }
-  var secondsinday = stringtoseconds(segment.datetime.substring(11, 19))
-  // TODO maybe: interpolate to show the exact time of the cursor
+  var secondsinday = stringtoseconds(segment.datetime.substring(11, 19));
+  var fraction = exactIdx - idx;
+  secondsinday += Math.trunc(fraction * 60);
   bub.innerText = secondstostring(secondsinday);
 }
 

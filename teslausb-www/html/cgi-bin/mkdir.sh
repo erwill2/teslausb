@@ -8,6 +8,13 @@ for ((i=0; i<${len}; i++ ))
 do
   val="${urlargs[i]//+/ }"
   urlargs[i]="$(echo -e "${val//%/\\x}")"
+  if [[ "${urlargs[i]}" == *".."* ]]; then
+    echo "HTTP/1.0 400 Bad Request"
+    echo "Content-type: text/plain"
+    echo
+    echo "Bad request"
+    exit 1
+  fi
 done
 
 for arg in "${urlargs[@]}"; do
@@ -29,7 +36,15 @@ HTTP/1.0 200 OK
 Content-type: text/plain
 
 EOF
-if mkdir -- "${urlargs[@]:1}"
+
+for arg in "${urlargs[@]:1}"; do
+  if [[ ! "$arg" =~ ^[a-zA-Z0-9_\ \.-]+$ ]] || [[ "$arg" == -* ]]; then
+    echo FAILED
+    exit 0
+  fi
+done
+
+if mkdir "${urlargs[@]:1}"
 then
   echo OK
 else

@@ -668,7 +668,18 @@ class FileBrowser {
       } else {
         pathSoFar = pathParts[i];
       }
-      var node = root.querySelector(`[data-fullpath="${this.stringEncode(pathSoFar)}"]`);
+      var encodedPathSoFar = this.stringEncode(pathSoFar);
+      var node = null;
+      for (var child = root.firstElementChild; child !== null; child = child.nextElementSibling) {
+        var details = child.firstElementChild;
+        if (details) {
+            var summary = details.firstElementChild;
+            if (summary && summary.dataset.fullpath === encodedPathSoFar) {
+                node = summary;
+                break;
+            }
+        }
+      }
       if (node == null) {
         /* level 'i' doesn't exist yet, add it */
         var newPath = this.createTreeItem(pathParts[i], pathSoFar);
@@ -782,7 +793,7 @@ class FileBrowser {
         this.addDir(root, line.substring(2));
       }
       if (line.indexOf("s:") == 0) {
-        let [freebytes, totalbytes] = line.substring(2).split(":");
+        let [, freebytes, totalbytes] = line.split(":");
         this.setDiskStats(freebytes, totalbytes);
       } else if (switchtopath && ! line.indexOf("D:") == 0) {
         this.addFileEntry(line);
