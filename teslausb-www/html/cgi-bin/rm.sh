@@ -17,6 +17,18 @@ do
   fi
 done
 
+for arg in "${urlargs[@]}"; do
+  if [[ "$arg" == /* ]] || [[ "$arg" == *".."* ]]; then
+    cat << EOF
+HTTP/1.0 400 Bad Request
+Content-type: text/plain
+
+FAILED
+EOF
+    exit 0
+  fi
+done
+
 cd "$DOCUMENT_ROOT/${urlargs[0]}"
 
 cat << EOF
@@ -24,7 +36,7 @@ HTTP/1.0 200 OK
 Content-type: text/plain
 
 EOF
-if rm -r "${urlargs[@]:1}"  &> /dev/null
+if rm -r -- "${urlargs[@]:1}"  &> /dev/null
 then
   echo OK
 else
