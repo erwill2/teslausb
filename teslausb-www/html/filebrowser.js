@@ -746,7 +746,7 @@ class FileBrowser {
     return div;
   }
 
-  addFileEntry(path) {
+  addFileEntry(path, listDiv) {
     var isDir = path.indexOf("d:") == 0;
     path = path.substring(2);
     var lastSlash = path.lastIndexOf("/");
@@ -758,7 +758,9 @@ class FileBrowser {
       name = name.substring(0, lastColon);
     }
     var newFile = this.createFileEntry(isDir, name, path, size);
-    var listDiv = this.anchor_elem.querySelector('.fb-fileslist');
+    if (!listDiv) {
+      listDiv = this.anchor_elem.querySelector('.fb-fileslist');
+    }
     listDiv.appendChild(newFile);
   }
 
@@ -785,8 +787,9 @@ class FileBrowser {
       root.innerHTML = '';
     }
     var lines = paths.split('\n');
+    var listDiv = this.anchor_elem.querySelector('.fb-fileslist');
     if (! this.valid || switchtopath) {
-      this.anchor_elem.querySelector('.fb-fileslist').querySelectorAll(".fb-direntry,.fb-fileentry").forEach((entry) => entry.remove());
+      listDiv.querySelectorAll(".fb-direntry,.fb-fileentry").forEach((entry) => entry.remove());
     }
     for (var line of lines) {
       if (line.indexOf("d:") == 0 || line.indexOf("D:") == 0) {
@@ -796,7 +799,7 @@ class FileBrowser {
         let [, freebytes, totalbytes] = line.split(":");
         this.setDiskStats(freebytes, totalbytes);
       } else if (switchtopath && ! line.indexOf("D:") == 0) {
-        this.addFileEntry(line);
+        this.addFileEntry(line, listDiv);
       }
     }
     this.updateButtonBar();
