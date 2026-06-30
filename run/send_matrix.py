@@ -27,7 +27,7 @@ async def send_message(homeserver: str, username: str, password: str, room_id: s
     await client.room_send(
         room_id=room_id,
         message_type="m.room.message",
-        content = {
+        content={
             "msgtype": "m.text",
             "body": message
         }
