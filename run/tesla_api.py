@@ -283,8 +283,18 @@ def _error(msg, flush=True):
 ######################################
 # API GET Functions
 ######################################
-def list_vehicles():
-    return _execute_request(list_url, None, None, False)
+_list_vehicles_cache = None
+_list_vehicles_cache_time = 0
+
+def list_vehicles(force_refresh=False):
+    global _list_vehicles_cache
+    global _list_vehicles_cache_time
+
+    # Cache the result for 5 seconds to avoid spamming the API in tight loops
+    if _list_vehicles_cache is None or force_refresh or (time.time() - _list_vehicles_cache_time > 5):
+        _list_vehicles_cache = _execute_request(list_url, None, None, False)
+        _list_vehicles_cache_time = time.time()
+    return _list_vehicles_cache
 
 
 def get_service_data():
