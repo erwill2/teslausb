@@ -46,12 +46,12 @@ function check_archive_mountable () {
   # NFS Mount Command
   # Forced vers=3 for wider NAS compatibility (Unifi, Synology, etc)
   # proto=tcp and nolock help with stability over wifi
-  local commandline="mount -t nfs '$ARCHIVE_SERVER:$share_path' '$test_mount_location' -o 'rw,noauto,nolock,proto=tcp,vers=3'"
+  local mount_args=( "-t" "nfs" "${ARCHIVE_SERVER}:${share_path}" "$test_mount_location" "-o" "rw,noauto,nolock,proto=tcp,vers=3" )
   
   log_progress "Trying NFS mount command-line:"
-  log_progress "$commandline"
+  log_progress "mount ${mount_args[*]}"
   
-  if eval "$commandline"
+  if mount "${mount_args[@]}"
   then
     mounted=true
   fi
