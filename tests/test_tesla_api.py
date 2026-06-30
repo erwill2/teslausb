@@ -69,5 +69,28 @@ class TestTeslaApi(unittest.TestCase):
         mock_error.assert_called_once_with("Could not find vehicle")
         mock_sys_exit.assert_called_once_with(1)
 
+    @patch('tesla_api._execute_request')
+    def test_get_nearby_charging(self, mock_execute_request):
+        # Set a dummy id in tesla_api_json for the test
+        original_id = tesla_api.tesla_api_json.get('id')
+        tesla_api.tesla_api_json['id'] = 456
+
+        mock_execute_request.return_value = {'response': 'test_data'}
+
+        try:
+            result = tesla_api.get_nearby_charging()
+
+            # Verify the result is what _execute_request returned
+            self.assertEqual(result, {'response': 'test_data'})
+
+            # Verify _execute_request was called with the correct URL
+            # Note the double slash in the URL string as present in the code
+            expected_url = '{}/456//nearby_charging_sites'.format(tesla_api.base_url)
+            mock_execute_request.assert_called_once_with(expected_url)
+        finally:
+            # Restore the original id
+            tesla_api.tesla_api_json['id'] = original_id
+
+
 if __name__ == '__main__':
     unittest.main()
