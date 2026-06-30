@@ -48,69 +48,11 @@ function check_variable () {
     fi
 }
 
-# as of March 2021, Raspberry Pi OS still includes a 3 year old version of
-# rsync, which has a bug (https://bugzilla.samba.org/show_bug.cgi?id=10494)
-# that breaks archiving from snapshots.
-# Check that the default rsync works correctly, and install a newer version
-# if needed.
-function check_default_rsync {
+function check_rsync {
   if ! hash rsync
   then
-    apt install rsync
+    apt install -y rsync
   fi
-
-  rm -rf /tmp/rsynctest
-  mkdir -p /tmp/rsynctest/src /tmp/rsynctest/dst
-  echo testfile > /tmp/testfile.dat
-  echo testfile.dat > /tmp/filelist
-  ln -s /tmp/testfile.dat /tmp/rsynctest/src/
-  if rsync -avhRL --remove-source-files --no-perms --omit-dir-times --files-from=/tmp/filelist /tmp/rsynctest/src/ /tmp/rsynctest/dst
-  then
-    if [ -s /tmp/rsynctest/dst/testfile.dat ] && ! [ -e /tmp/rsynctest/src/testfile.dat ]
-    then
-      rm -rf /tmp/rsynctest
-      return 0
-    fi
-  fi
-  return 1
-}
-
-function install_prebuilt_rsync {
-  local arch="$(uname -m)"
-  if [ "$arch" = "aarch64" ]
-  then
-    curl -L --fail -o /usr/local/bin/rsync https://github.com/marcone/rsync/releases/download/v3.2.3-arm64/rsync
-  elif [[ $arch =~ arm* ]]
-  then
-    curl -L --fail -o /usr/local/bin/rsync https://github.com/marcone/rsync/releases/download/v3.2.3-rpi/rsync
-  else
-    log_progress "No prebuilt rsync for '$arch'"
-    return 1
-  fi
-}
-
-function check_rsync {
-  if check_default_rsync
-  then
-    log_progress "rsync seems to work OK"
-    return 0
-  fi
-
-  log_progress "default rsync doesn't work, installing prebuilt 3.2.3"
-  if install_prebuilt_rsync
-  then
-    chmod a+x /usr/local/bin/rsync
-    apt install -y libxxhash0 libssl-dev
-    if check_default_rsync
-    then
-      log_progress "rsync works OK now"
-      return 0
-    fi
-  fi
-
-  log_progress "STOP: rsync doesn't work correctly"
-  log_progress "(using '$(which rsync)')"
-  exit 1
 }
 
 function check_archive_configs () {
