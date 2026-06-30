@@ -543,12 +543,11 @@ def _get_arg_parser():
     return parser
 
 
-######################################
-# MAIN
-######################################
-def main():
-    args = _get_arg_parser().parse_args()
-
+def _setup_settings(args):
+    """
+    Populates the SETTINGS dictionary from command-line arguments and
+    environment variables. Also handles the API token setup.
+    """
     SETTINGS['DEBUG'] = args.debug
     SETTINGS['refresh_token'] = args.refresh_token
 
@@ -574,18 +573,55 @@ def main():
         tesla_api_json['refresh_token'] = SETTINGS['refresh_token']
         _write_tesla_api_json()
 
-    # Apply any arguments that the user may have provided.
+
+def _parse_kwargs(arguments_str):
+    """
+    Parses comma-separated key:value arguments into a dictionary
+    and returns both the dictionary and its string representation.
+    """
     kwargs = {}
-    if args.arguments:
-        for kwarg_string in [arg.strip() for arg in args.arguments.split(',')]:
+    if arguments_str:
+        for kwarg_string in [arg.strip() for arg in arguments_str.split(',')]:
             key, value = kwarg_string.split(':')
             kwargs[key] = value
-    # Render the arguments as a POST body.
+
     kwargs_string = ''
     if kwargs:
         kwargs_string = ', '.join(
             '{}={}'.format(key, value) for key, value in kwargs.items()
         )
+    return kwargs, kwargs_string
+
+
+def _print_result(result):
+    """
+    Checks if the result is JSON. If it is, logs the pretty-printed JSON.
+    Otherwise, prints the result directly.
+    """
+    is_json = False
+    try:
+        if isinstance(result, str):
+            json.loads(result)
+            is_json = True
+    except ValueError:
+        pass
+
+    if is_json:
+        _log(json.dumps(result, indent=2))
+    else:
+        print(result, flush=True)
+
+
+######################################
+# MAIN
+######################################
+def main():
+    args = _get_arg_parser().parse_args()
+
+    _setup_settings(args)
+
+    # Apply any arguments that the user may have provided.
+    kwargs, kwargs_string = _parse_kwargs(args.arguments)
 
     # We need to call this before calling any API function, because those need
     # to know the ID before they call _execute_request()
@@ -597,20 +633,8 @@ def main():
     _log('Calling {}({})...'.format(args.function, kwargs_string))
     result = function(**kwargs)
 
-    # Write the output of the API call to stdout, if DEBUG is true.
-    is_json = False
-    try:
-        # check to see if result is json
-        if isinstance(result, str):
-            json.loads(result)
-            is_json = True
-    except ValueError as e:
-        pass
-
-    if is_json:
-        _log(json.dumps(result, indent=2))
-    else:
-        print(result, flush=True)
+    # Write the output of the API call to stdout
+    _print_result(result)
 
 
 if __name__ == '__main__':
