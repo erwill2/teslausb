@@ -46,6 +46,9 @@ do
     exit 1
   fi
 
+  # WORKAROUND for rsync bug 10494 where it fails to remove symlinks
+  (cd "$1" && tr '\n' '\0' < "$2" | xargs -0 -r rm -f)
+
   shift 2
 done
 
