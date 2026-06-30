@@ -10,7 +10,6 @@ import time
 import sys
 from datetime import datetime, timedelta
 # Only used for debugging.
-from pprint import pprint
 
 
 # Global vars for use by various functions.
