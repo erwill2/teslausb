@@ -76,7 +76,7 @@ function check_archive_mountable () {
       local commandline="mount -t cifs '//$1/$2' '$test_mount_location' -o '$3,credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$versopt,$secopt'"
       log_progress "Trying mount command-line:"
       log_progress "$commandline"
-      if eval "$commandline"
+      if mount -t cifs "//$1/$2" "$test_mount_location" -o "$3,credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$versopt,$secopt"
       then
         mounted=true
         break 2
