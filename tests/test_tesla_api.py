@@ -69,5 +69,34 @@ class TestTeslaApi(unittest.TestCase):
         mock_error.assert_called_once_with("Could not find vehicle")
         mock_sys_exit.assert_called_once_with(1)
 
+    @patch('tesla_api._execute_request')
+    def test_actuate_trunk(self, mock_execute_request):
+        # Setup mock return value
+        mock_execute_request.return_value = {
+            'response': {
+                'result': True,
+                'reason': ''
+            }
+        }
+
+        # We need an id set to match what the function expects
+        self.original_id = tesla_api.tesla_api_json.get('id')
+        tesla_api.tesla_api_json['id'] = 'mocked_id_123'
+
+        try:
+            # Call the function
+            result = tesla_api.actuate_trunk()
+
+            # Assertions
+            self.assertTrue(result)
+            mock_execute_request.assert_called_once_with(
+                '{}/{}/command/actuate_trunk'.format(tesla_api.base_url, 'mocked_id_123'),
+                method='POST',
+                data={'which_trunk': 'rear'}
+            )
+        finally:
+            # Cleanup
+            tesla_api.tesla_api_json['id'] = self.original_id
+
 if __name__ == '__main__':
     unittest.main()
