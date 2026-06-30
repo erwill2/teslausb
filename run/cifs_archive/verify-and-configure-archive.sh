@@ -101,7 +101,7 @@ function check_archive_mountable () {
     fi
 
     # the music archive must be mountable with the same mount options
-    # so fix the options now
+    # so save the options now
     export CIFS_VERSION=$vers
     export CIFS_SEC=$sec
     VERS_OPT=$versopt
