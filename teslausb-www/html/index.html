@@ -1844,7 +1844,8 @@ function showstatus() {
         } else {
           wifiinfo += statusvals.wifi_ip;
         }
-        var strength = eval(statusvals.wifi_strength);
+        var strengthParts = String(statusvals.wifi_strength).split('/');
+        var strength = strengthParts.length === 2 ? parseFloat(strengthParts[0]) / parseFloat(strengthParts[1]) : parseFloat(statusvals.wifi_strength) || 0;
         var str = "+".repeat(1 + 3.99 * strength);
         var wifiicon = document.querySelector(".wifi-icon");
         wifiicon.attributes.strength.value = str;
