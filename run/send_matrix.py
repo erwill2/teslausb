@@ -15,15 +15,8 @@ async def send_message(homeserver: str, username: str, password: str, room_id: s
     if username.find(':') > 0:
         username = username.split(':')[0]
 
-if username.startswith('@'):
-    username = username[1:]
+    device_name = socket.gethostname()
 
-if username.find(':') > 0:
-    username = username.split(':')[0]
-
-device_name = socket.gethostname()
-
-async def main(device_name: str) -> None:
     client = AsyncClient(homeserver, username)
     response = await client.login(password, device_name=device_name)
 
@@ -34,7 +27,7 @@ async def main(device_name: str) -> None:
     await client.room_send(
         room_id=room_id,
         message_type="m.room.message",
-        content = {
+        content={
             "msgtype": "m.text",
             "body": message
         }
@@ -51,4 +44,5 @@ def main() -> None:
     asyncio.get_event_loop().run_until_complete(send_message(homeserver, username, password, room_id, message))
     sys.exit(0)
 
-asyncio.get_event_loop().run_until_complete(main(device_name))
+if __name__ == '__main__':
+    main()
