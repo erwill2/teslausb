@@ -69,5 +69,14 @@ class TestTeslaApi(unittest.TestCase):
         mock_error.assert_called_once_with("Could not find vehicle")
         mock_sys_exit.assert_called_once_with(1)
 
+    @patch('tesla_api._execute_request')
+    def test_wake_up_vehicle(self, mock_execute_request):
+        mock_execute_request.return_value = 'some_return_value'
+
+        result = tesla_api.wake_up_vehicle()
+
+        mock_execute_request.assert_called_once_with()
+        self.assertEqual(result, 'some_return_value')
+
 if __name__ == '__main__':
     unittest.main()
