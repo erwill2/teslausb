@@ -56,7 +56,7 @@ function check_variable () {
 function check_default_rsync {
   if ! hash rsync
   then
-    apt install rsync
+    apt install -y rsync
   fi
 
   rm -rf /tmp/rsynctest
@@ -66,7 +66,7 @@ function check_default_rsync {
   ln -s /tmp/testfile.dat /tmp/rsynctest/src/
   if rsync -avhRL --remove-source-files --no-perms --omit-dir-times --files-from=/tmp/filelist /tmp/rsynctest/src/ /tmp/rsynctest/dst
   then
-    if [ -s /tmp/rsynctest/dst/testfile.dat ] && ! [ -e /tmp/rsynctest/src/testfile.dat ]
+    if [ -s /tmp/rsynctest/dst/testfile.dat ] && ! [ -L /tmp/rsynctest/src/testfile.dat ]
     then
       rm -rf /tmp/rsynctest
       return 0
