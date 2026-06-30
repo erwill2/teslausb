@@ -418,8 +418,7 @@ function make_root_fs_readonly () {
 
 function update_package_index () {
   setup_progress "Updating package index files..."
-  # the package index might be in a bad state if setup was previously
-  # interrupted, so fix it up first
+  # Package index fixed for interrupted setups
   dpkg --configure -a || true
   if [ "$(. /etc/os-release && echo "${VERSION_ID:-}")" = "10" ] && grep -q 'raspbian\.raspberrypi\.org' /etc/apt/sources.list
   then
