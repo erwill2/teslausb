@@ -118,7 +118,7 @@ then
   log_progress "fixing /var/spool"
   rm /var/spool
   mkdir /var/spool
-  chmod 755 /var/spool
+  chmod 1777 /var/spool
   # a tmpfs fstab entry for /var/spool will be added below
 else
   rm -rf /var/spool/*
