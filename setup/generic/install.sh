@@ -221,25 +221,29 @@ then
   fi
 fi
 
+SETUP_MSG=\
+"+------------------------------------------------------------------------+
+| To continue teslausb setup, edit the file                              |
+| /teslausb/teslausb_setup_variables.conf with your favorite             |
+| editor, e.g. 'nano /teslausb/teslausb_setup_variables.conf' and fill   |
+| in the required variables. Instructions are in the file, and at        |
+| https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md  |
+| (though ignore the Raspberry Pi specific bits about flashing and       |
+| mounting the sd card on a PC)                                          |
+|                                                                        |
+| When done, save changes and run /etc/rc.local                          |
++------------------------------------------------------------------------+"
+
 if ! grep -q "SETUP_FINISHED" /root/.bashrc
 then
   cat <<- EOF >> /root/.bashrc
 	if [ ! -e /teslausb/TESLAUSB_SETUP_FINISHED ]
 	then
-	  echo "+------------------------------------------------------------------------+"
-	  echo "| To continue teslausb setup, edit the file                              |"
-	  echo "| /teslausb/teslausb_setup_variables.conf with your favorite             |"
-	  echo "| editor, e.g. 'nano /teslausb/teslausb_setup_variables.conf' and fill   |"
-	  echo "| in the required variables. Instructions are in the file, and at        |"
-	  echo "| https://github.com/marcone/teslausb/blob/main-dev/doc/OneStepSetup.md  |"
-	  echo "| (though ignore the Raspberry Pi specific bits about flashing and       |"
-	  echo "| mounting the sd card on a PC)                                          |"
-	  echo "|                                                                        |"
-	  echo "| When done, save changes and run /etc/rc.local                          |"
-	  echo "+------------------------------------------------------------------------+"
+	  cat <<- 'MSGEOF'
+$SETUP_MSG
+MSGEOF
 	fi
 	EOF
 fi
 
-# hack to print the above message without duplicating it here
-grep -A 12 SETUP_FINISHED .bashrc  | grep echo | while read line; do eval "$line"; done
+echo "$SETUP_MSG"
