@@ -116,5 +116,11 @@ class TestTeslaApi(unittest.TestCase):
         finally:
             tesla_api.tesla_api_json['id'] = original_id
 
+    @patch('builtins.open', side_effect=FileNotFoundError)
+    @patch('tesla_api._write_tesla_api_json')
+    def test_load_tesla_api_json_file_not_found(self, mock_write, mock_open):
+        tesla_api._load_tesla_api_json()
+        mock_write.assert_called_once()
+
 if __name__ == '__main__':
     unittest.main()
