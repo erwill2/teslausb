@@ -11,11 +11,14 @@ class TestTeslaApi(unittest.TestCase):
     def setUp(self):
         # Save original value to restore later
         self.original_vehicle_id = tesla_api.tesla_api_json.get('vehicle_id')
+        self.original_id = tesla_api.tesla_api_json.get('id')
         tesla_api.tesla_api_json['vehicle_id'] = 123
+        tesla_api.tesla_api_json['id'] = 987
 
     def tearDown(self):
         # Restore original value
         tesla_api.tesla_api_json['vehicle_id'] = self.original_vehicle_id
+        tesla_api.tesla_api_json['id'] = self.original_id
 
     @patch('tesla_api.list_vehicles')
     def test_get_vehicle_online_state_vehicle_found(self, mock_list_vehicles):
@@ -121,6 +124,19 @@ class TestTeslaApi(unittest.TestCase):
     def test_load_tesla_api_json_file_not_found(self, mock_write, mock_open):
         tesla_api._load_tesla_api_json()
         mock_write.assert_called_once()
+
+    @patch('tesla_api._execute_request')
+    def test_set_charge_limit(self, mock_execute_request):
+        mock_execute_request.return_value = {'response': {'result': True, 'reason': ''}}
+
+        result = tesla_api.set_charge_limit(80)
+
+        mock_execute_request.assert_called_once_with(
+            '{}/{}/command/set_charge_limit'.format(tesla_api.base_url, 987),
+            method='POST',
+            data={'percent': 80}
+        )
+        self.assertEqual(result, {'response': {'result': True, 'reason': ''}})
 
 if __name__ == '__main__':
     unittest.main()
