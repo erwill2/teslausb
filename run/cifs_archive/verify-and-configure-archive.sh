@@ -73,10 +73,10 @@ function check_archive_mountable () {
       then
         secopt="sec=$sec"
       fi
-      local commandline="mount -t cifs '//$1/$2' '$test_mount_location' -o '$3,credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$versopt,$secopt'"
+      local mount_args=( "-t" "cifs" "//$1/$2" "$test_mount_location" "-o" "$3,credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$versopt,$secopt" )
       log_progress "Trying mount command-line:"
-      log_progress "$commandline"
-      if mount -t cifs "//$1/$2" "$test_mount_location" -o "$3,credentials=${tmp_credentials_file_path},iocharset=utf8,file_mode=0777,dir_mode=0777,$versopt,$secopt"
+      log_progress "mount ${mount_args[*]}"
+      if mount "${mount_args[@]}"
       then
         mounted=true
         break 2
@@ -88,7 +88,7 @@ function check_archive_mountable () {
     log_progress "STOP: no working combination of vers and sec mount options worked"
     exit 1
   else
-    log_progress "The archive share is mountable using: $commandline"
+    log_progress "The archive share is mountable using: mount ${mount_args[*]}"
     if [ "$3" = "rw" ]
     then
        if ! touch "$test_mount_location/testfile"
