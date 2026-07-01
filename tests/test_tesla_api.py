@@ -78,5 +78,20 @@ class TestTeslaApi(unittest.TestCase):
         mock_execute_request.assert_called_once_with()
         self.assertEqual(result, 'some_return_value')
 
+    @patch('tesla_api._execute_request')
+    def test_get_nearby_charging(self, mock_execute_request):
+        original_id = tesla_api.tesla_api_json.get('id')
+        tesla_api.tesla_api_json['id'] = 456
+        mock_execute_request.return_value = {'response': 'test_data'}
+
+        try:
+            result = tesla_api.get_nearby_charging()
+
+            self.assertEqual(result, {'response': 'test_data'})
+            expected_url = '{}/456//nearby_charging_sites'.format(tesla_api.base_url)
+            mock_execute_request.assert_called_once_with(expected_url)
+        finally:
+            tesla_api.tesla_api_json['id'] = original_id
+
 if __name__ == '__main__':
     unittest.main()
