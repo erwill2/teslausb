@@ -78,7 +78,7 @@ function calc_size () {
     esac
     log_progress "Percentage-based size no longer supported, using default size of $requestedsize for $1" > /dev/stderr
   fi
-  requestedsize="$(( $(dehumanize $requestedsize) / 1024 ))"
+  requestedsize="$(( $(dehumanize "$requestedsize") / 1024 ))"
   echo "$requestedsize"
 }
 
@@ -186,7 +186,8 @@ function image_matches_params () {
   then
     if [ -e "$image_file" ]
     then
-      local current_image_size=$(image_size_kb "$image_file")
+      local current_image_size
+      current_image_size=$(image_size_kb "$image_file")
       if ! closeenough "$requested_image_size" "$current_image_size"
       then
         log_progress "$image_file should be resized (to $requested_image_size from $current_image_size)"
@@ -279,6 +280,7 @@ fi
 function reduce_size () {
   local curval="${!1}"
   local minval=$(( $(dehumanize "$2") / 1024))
+  local varname="$1"
   if [ "$curval" -le "$minval" ]
   then
     return
@@ -286,9 +288,11 @@ function reduce_size () {
   local newval=$((curval*95/100))
   if [ "$newval" -ge "$minval" ]
   then
-    export $1=$newval
+    printf -v "$varname" '%s' "$newval"
+    export "${varname?}"
   else
-    export $1=$minval
+    printf -v "$varname" '%s' "$minval"
+    export "${varname?}"
   fi
   adjusted=true
 }

@@ -127,7 +127,7 @@ function get_archive_module () {
 }
 
 function pip3_install () {
-  rm -f /usr/lib/$(py3versions -d)/EXTERNALLY-MANAGED
+  rm -f "/usr/lib/$(py3versions -d)/EXTERNALLY-MANAGED"
   pip3 install "$@"
 }
 

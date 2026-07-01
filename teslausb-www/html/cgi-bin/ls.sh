@@ -34,7 +34,7 @@ then
   exit
 fi
 
-lspath="${urlargs[@]:1}"
+lspath="${urlargs[1]:-}"
 if [[ -z "$lspath" ]]
 then
   lspath=.

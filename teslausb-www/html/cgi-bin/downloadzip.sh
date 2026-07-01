@@ -29,7 +29,16 @@ EOF
   fi
 done
 
-cd "$DOCUMENT_ROOT/${urlargs[0]}"
+if ! cd "$DOCUMENT_ROOT/${urlargs[0]}"
+then
+  cat << EOF
+HTTP/1.0 400 Bad Request
+Content-type: text/plain
+
+FAILED
+EOF
+  exit 0
+fi
 echo "HTTP/1.0 200 OK"
 echo "Content-type: application/zip"
 echo

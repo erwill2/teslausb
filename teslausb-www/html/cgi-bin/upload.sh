@@ -29,7 +29,16 @@ EOF
   fi
 done
 
-cd "$DOCUMENT_ROOT/${urlargs[0]}"
+if ! cd "$DOCUMENT_ROOT/${urlargs[0]}"
+then
+  cat << EOF
+HTTP/1.0 400 Bad Request
+Content-type: text/plain
+
+FAILED
+EOF
+  exit 0
+fi
 
 destpath="${urlargs[1]}"
 
@@ -47,7 +56,7 @@ EOF
   exit 0
 fi
 
-echo $destpath >> /tmp/upload.txt
+echo "$destpath" >> /tmp/upload.txt
 destdir=${destpath%/*}
 if [ "$destdir" = "$destpath" ]
 then

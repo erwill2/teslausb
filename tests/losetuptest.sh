@@ -9,12 +9,12 @@ TESTIMG=/backingfiles/losetuptest.bin
 while true
 do
   echo -n "$(date) looping: "
-  dd if=/dev/zero of=$TESTIMG bs=1M count=128 status=none
-  if losetup --sector-size=4096 -fP $TESTIMG
+  dd if=/dev/zero of="$TESTIMG" bs=1M count=128 status=none
+  if losetup --sector-size=4096 -fP "$TESTIMG"
   then
     LOOP=$(losetup -n -O NAME -j /backingfiles/losetuptest.bin)
     echo "$LOOP"
-    losetup -d $LOOP
+    losetup -d "$LOOP"
   else
     echo losetup failed:
     LOOP=$(losetup -n -O NAME -j /backingfiles/losetuptest.bin)
@@ -23,9 +23,9 @@ do
       echo "No loop device exists"
     else
       echo "loop device exists: $LOOP"
-      losetup -d $LOOP
+      losetup -d "$LOOP"
     fi
     losetup -l
   fi
-  rm $TESTIMG
+  rm "$TESTIMG"
 done

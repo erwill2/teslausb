@@ -1,6 +1,6 @@
 #!/bin/bash -eu
 
-SRC=$(dirname $(readlink -f $0))
+SRC=$(dirname "$(readlink -f "$0")")
 DEST=$(readlink -f .)
 
 if [[ "$DEST" != */pi-gen ]]
@@ -17,5 +17,4 @@ cp stage2/prerun.sh stage_teslausb/prerun.sh
 cp -r "$SRC/00-teslausb-tweaks" stage_teslausb
 
 echo 'Build config set. Now use "./build.sh" or "./build-docker.sh" to build the TeslaUSB image.'
-
 
