@@ -93,5 +93,28 @@ class TestTeslaApi(unittest.TestCase):
         finally:
             tesla_api.tesla_api_json['id'] = original_id
 
+    @patch('tesla_api._execute_request')
+    def test_actuate_trunk(self, mock_execute_request):
+        mock_execute_request.return_value = {
+            'response': {
+                'result': True,
+                'reason': ''
+            }
+        }
+        original_id = tesla_api.tesla_api_json.get('id')
+        tesla_api.tesla_api_json['id'] = 'mocked_id_123'
+
+        try:
+            result = tesla_api.actuate_trunk()
+
+            self.assertTrue(result)
+            mock_execute_request.assert_called_once_with(
+                '{}/{}/command/actuate_trunk'.format(tesla_api.base_url, 'mocked_id_123'),
+                method='POST',
+                data={'which_trunk': 'rear'}
+            )
+        finally:
+            tesla_api.tesla_api_json['id'] = original_id
+
 if __name__ == '__main__':
     unittest.main()
